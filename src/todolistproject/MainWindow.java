@@ -5,9 +5,11 @@
  */
 package todolistproject;
 
+import javax.swing.DefaultListModel;
+
 /**
  *
- * @author pp2
+ * @author Blod2
  */
 public class MainWindow extends javax.swing.JFrame {
 
@@ -16,6 +18,27 @@ public class MainWindow extends javax.swing.JFrame {
      */
     public MainWindow() {
         initComponents();
+        
+        //setting models for lists, models control the list contents
+       jListTodo.setModel(listModelTodo);
+       jListOngoing.setModel(listModelOngoing);
+       jListFinished.setModel(listModelFinished);
+       
+       /*TODO: procedure connecting to database
+       * procedure loading from database
+       * procedure saving to database(?)
+       * DO NOT FORGET DISCONNECT FROM DB
+       * add work with database to button actions
+       */
+       
+       //let's test how it would work
+       //adding some info into lists
+       listModelTodo.clear();
+       listModelTodo.add(0, "First job");
+       listModelTodo.add(1, "Second job");
+       listModelTodo.add(2, "Third job");
+       listModelOngoing.clear();
+       listModelFinished.clear();
     }
 
     /**
@@ -29,19 +52,19 @@ public class MainWindow extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jList3 = new javax.swing.JList<>();
-        jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
+        jListFinished = new javax.swing.JList<>();
+        jButtonDeleteTask = new javax.swing.JButton();
+        jButtonBackToOngoing = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList<>();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        jListTodo = new javax.swing.JList<>();
+        jButtonForvardToOngoing = new javax.swing.JButton();
+        jButtonAddTask = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jList2 = new javax.swing.JList<>();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        jListOngoing = new javax.swing.JList<>();
+        jButtonForvardToFinished = new javax.swing.JButton();
+        jButtonBackToTodo = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
@@ -50,19 +73,19 @@ public class MainWindow extends javax.swing.JFrame {
 
         jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
-        jList3.setModel(new javax.swing.AbstractListModel<String>() {
+        jListFinished.setModel(new javax.swing.AbstractListModel<String>() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
-        jScrollPane3.setViewportView(jList3);
+        jScrollPane3.setViewportView(jListFinished);
 
-        jButton5.setText("Finish task");
+        jButtonDeleteTask.setText("Delete task");
 
-        jButton6.setText("Back");
-        jButton6.addActionListener(new java.awt.event.ActionListener() {
+        jButtonBackToOngoing.setText("Back");
+        jButtonBackToOngoing.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton6ActionPerformed(evt);
+                jButtonBackToOngoingActionPerformed(evt);
             }
         });
 
@@ -75,9 +98,9 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(6, 6, 6)
-                        .addComponent(jButton6)
+                        .addComponent(jButtonBackToOngoing)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 183, Short.MAX_VALUE)
-                        .addComponent(jButton5)
+                        .addComponent(jButtonDeleteTask)
                         .addGap(19, 19, 19))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jScrollPane3)
@@ -90,23 +113,24 @@ public class MainWindow extends javax.swing.JFrame {
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 403, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton5)
-                    .addComponent(jButton6))
+                    .addComponent(jButtonDeleteTask)
+                    .addComponent(jButtonBackToOngoing))
                 .addContainerGap(10, Short.MAX_VALUE))
         );
 
         jPanel3.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
-        jList1.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
+        jListTodo.setModel(jListOngoing.getModel());
+        jScrollPane1.setViewportView(jListTodo);
+
+        jButtonForvardToOngoing.setText("Forvard");
+        jButtonForvardToOngoing.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonForvardToOngoingActionPerformed(evt);
+            }
         });
-        jScrollPane1.setViewportView(jList1);
 
-        jButton1.setText("Forvard");
-
-        jButton2.setText("Add task");
+        jButtonAddTask.setText("Add task");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -118,9 +142,9 @@ public class MainWindow extends javax.swing.JFrame {
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                 .addContainerGap(174, Short.MAX_VALUE)
-                .addComponent(jButton2)
+                .addComponent(jButtonAddTask)
                 .addGap(18, 18, 18)
-                .addComponent(jButton1)
+                .addComponent(jButtonForvardToOngoing)
                 .addGap(23, 23, 23))
         );
         jPanel3Layout.setVerticalGroup(
@@ -130,23 +154,33 @@ public class MainWindow extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 403, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
+                    .addComponent(jButtonForvardToOngoing)
+                    .addComponent(jButtonAddTask))
                 .addContainerGap(10, Short.MAX_VALUE))
         );
 
         jPanel4.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
-        jList2.setModel(new javax.swing.AbstractListModel<String>() {
+        jListOngoing.setModel(new javax.swing.AbstractListModel<String>() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
-        jScrollPane2.setViewportView(jList2);
+        jScrollPane2.setViewportView(jListOngoing);
 
-        jButton3.setText("Forvard");
+        jButtonForvardToFinished.setText("Forvard");
+        jButtonForvardToFinished.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonForvardToFinishedActionPerformed(evt);
+            }
+        });
 
-        jButton4.setText("Back");
+        jButtonBackToTodo.setText("Back");
+        jButtonBackToTodo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonBackToTodoActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -157,9 +191,9 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGap(6, 6, 6)
-                        .addComponent(jButton4)
+                        .addComponent(jButtonBackToTodo)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 183, Short.MAX_VALUE)
-                        .addComponent(jButton3)
+                        .addComponent(jButtonForvardToFinished)
                         .addGap(19, 19, 19))
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jScrollPane2)
@@ -172,8 +206,8 @@ public class MainWindow extends javax.swing.JFrame {
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 403, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton3)
-                    .addComponent(jButton4))
+                    .addComponent(jButtonForvardToFinished)
+                    .addComponent(jButtonBackToTodo))
                 .addContainerGap(10, Short.MAX_VALUE))
         );
 
@@ -212,9 +246,53 @@ public class MainWindow extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton6ActionPerformed
+    
+    /*
+    * Most likely, the code for the buttons will have to be changed when
+    * working with the server, so that the data exchange will go directly through
+    * the server. Anyway, now I know how it works.
+    */
+    //Back button to ONGOING
+    private void jButtonBackToOngoingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBackToOngoingActionPerformed
+        int selectedIndex = jListFinished.getSelectedIndex();
+
+        if (listModelFinished.getSize()>0&&selectedIndex>=0){
+            listModelOngoing.add(listModelOngoing.getSize(),listModelFinished.get(selectedIndex));
+            listModelFinished.remove(selectedIndex);
+        }
+    }//GEN-LAST:event_jButtonBackToOngoingActionPerformed
+        
+    //Forvard button to ONGOING
+    private void jButtonForvardToOngoingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonForvardToOngoingActionPerformed
+        int selectedIndex = jListTodo.getSelectedIndex();
+
+        if (listModelTodo.getSize()>0&&selectedIndex>=0){
+            listModelOngoing.add(listModelOngoing.getSize(),listModelTodo.get(selectedIndex));
+            listModelTodo.remove(selectedIndex);
+           // if (listModelTodo.getSize()==0) jButtonForvardToOngoing.setEnabled(false);
+           //TODO: Think about enabling/disabling button algorythm
+        }
+    }//GEN-LAST:event_jButtonForvardToOngoingActionPerformed
+    
+    //Back button to TODO
+    private void jButtonBackToTodoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBackToTodoActionPerformed
+        int selectedIndex = jListOngoing.getSelectedIndex();
+
+        if (listModelOngoing.getSize()>0&&selectedIndex>=0){
+            listModelTodo.add(listModelTodo.getSize(),listModelOngoing.get(selectedIndex));
+            listModelOngoing.remove(selectedIndex);
+        }
+    }//GEN-LAST:event_jButtonBackToTodoActionPerformed
+    
+    //Forvard button to FINISHED
+    private void jButtonForvardToFinishedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonForvardToFinishedActionPerformed
+          int selectedIndex = jListOngoing.getSelectedIndex();
+
+        if (listModelOngoing.getSize()>0&&selectedIndex>=0){
+            listModelFinished.add(listModelFinished.getSize(),listModelOngoing.get(selectedIndex));
+            listModelOngoing.remove(selectedIndex);
+        }
+    }//GEN-LAST:event_jButtonForvardToFinishedActionPerformed
 
     /**
      * @param args the command line arguments
@@ -251,16 +329,18 @@ public class MainWindow extends javax.swing.JFrame {
         });
     }
 
+    
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
-    private javax.swing.JList<String> jList1;
-    private javax.swing.JList<String> jList2;
-    private javax.swing.JList<String> jList3;
+    private javax.swing.JButton jButtonAddTask;
+    private javax.swing.JButton jButtonBackToOngoing;
+    private javax.swing.JButton jButtonBackToTodo;
+    private javax.swing.JButton jButtonDeleteTask;
+    private javax.swing.JButton jButtonForvardToFinished;
+    private javax.swing.JButton jButtonForvardToOngoing;
+    private javax.swing.JList<String> jListFinished;
+    private javax.swing.JList<String> jListOngoing;
+    private javax.swing.JList<String> jListTodo;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
@@ -271,4 +351,10 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     // End of variables declaration//GEN-END:variables
+
+    //User variables declaration @author Blod2
+    final DefaultListModel listModelTodo = new DefaultListModel();
+    final DefaultListModel listModelOngoing = new DefaultListModel();
+    final DefaultListModel listModelFinished = new DefaultListModel();
+    //End of user variables declaration
 }

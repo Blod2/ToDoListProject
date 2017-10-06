@@ -5,7 +5,13 @@
  */
 package todolistproject;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -31,14 +37,7 @@ public class MainWindow extends javax.swing.JFrame {
        * add work with database to button actions
        */
        
-       //let's test how it would work
-       //adding some info into lists
-       listModelTodo.clear();
-       listModelTodo.add(0, "First job");
-       listModelTodo.add(1, "Second job");
-       listModelTodo.add(2, "Third job");
-       listModelOngoing.clear();
-       listModelFinished.clear();
+       dbConnect();
     }
 
     /**
@@ -70,6 +69,11 @@ public class MainWindow extends javax.swing.JFrame {
         jMenu2 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                formWindowClosed(evt);
+            }
+        });
 
         jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
@@ -248,52 +252,125 @@ public class MainWindow extends javax.swing.JFrame {
 
     
     /*
-    * Most likely, the code for the buttons will have to be changed when
-    * working with the server, so that the data exchange will go directly through
-    * the server. Anyway, now I know how it works.
+    * Forvard and Back buttons just throwing data from one table
+    * to another. Pretty lazy, but it works. 
+    * 
     */
+    
+    //procedure made for optimizing code length (but as for me, it is less readable now)
+    private void buttonQueryExecution(String _query, String _delquery){
+        try{
+           stmt.executeUpdate(_query);
+           stmt.executeUpdate(_delquery);
+       }
+       catch(SQLException ex){
+           JOptionPane.showMessageDialog(this, ex.getMessage());
+       }
+       dbFillLists();   
+    }
+    
     //Back button to ONGOING
     private void jButtonBackToOngoingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBackToOngoingActionPerformed
-        int selectedIndex = jListFinished.getSelectedIndex();
+       String selectedJob = jListFinished.getSelectedValue();
 
-        if (listModelFinished.getSize()>0&&selectedIndex>=0){
-            listModelOngoing.add(listModelOngoing.getSize(),listModelFinished.get(selectedIndex));
-            listModelFinished.remove(selectedIndex);
-        }
+       String query = "insert into ongoing_list (user_ID, job_text, job_date)\n"
+               +"select user_ID, job_text, job_date from finished_list where job_text = \""+selectedJob+"\";";
+       String delquery = "delete from finished_list where job_text = \""+selectedJob+"\";";
+       buttonQueryExecution(query,delquery);
     }//GEN-LAST:event_jButtonBackToOngoingActionPerformed
         
     //Forvard button to ONGOING
     private void jButtonForvardToOngoingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonForvardToOngoingActionPerformed
-        int selectedIndex = jListTodo.getSelectedIndex();
+       
+       String selectedJob = jListTodo.getSelectedValue();
 
-        if (listModelTodo.getSize()>0&&selectedIndex>=0){
-            listModelOngoing.add(listModelOngoing.getSize(),listModelTodo.get(selectedIndex));
-            listModelTodo.remove(selectedIndex);
-           // if (listModelTodo.getSize()==0) jButtonForvardToOngoing.setEnabled(false);
-           //TODO: Think about enabling/disabling button algorythm
-        }
+       String query = "insert into ongoing_list (user_ID, job_text, job_date)\n"
+               +"select user_ID, job_text, job_date from todo_list where job_text = \""+selectedJob+"\";";
+       String delquery = "delete from todo_list where job_text = \""+selectedJob+"\";";
+      buttonQueryExecution(query,delquery);
     }//GEN-LAST:event_jButtonForvardToOngoingActionPerformed
     
     //Back button to TODO
     private void jButtonBackToTodoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBackToTodoActionPerformed
-        int selectedIndex = jListOngoing.getSelectedIndex();
+  
+       String selectedJob = jListOngoing.getSelectedValue();
 
-        if (listModelOngoing.getSize()>0&&selectedIndex>=0){
-            listModelTodo.add(listModelTodo.getSize(),listModelOngoing.get(selectedIndex));
-            listModelOngoing.remove(selectedIndex);
-        }
+       String query = "insert into todo_list (user_ID, job_text, job_date)\n"
+               +"select user_ID, job_text, job_date from ongoing_list where job_text = \""+selectedJob+"\";";
+       String delquery = "delete from ongoing_list where job_text = \""+selectedJob+"\";";
+       buttonQueryExecution(query,delquery);    
     }//GEN-LAST:event_jButtonBackToTodoActionPerformed
     
     //Forvard button to FINISHED
     private void jButtonForvardToFinishedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonForvardToFinishedActionPerformed
-          int selectedIndex = jListOngoing.getSelectedIndex();
+       String selectedJob = jListOngoing.getSelectedValue();
 
-        if (listModelOngoing.getSize()>0&&selectedIndex>=0){
-            listModelFinished.add(listModelFinished.getSize(),listModelOngoing.get(selectedIndex));
-            listModelOngoing.remove(selectedIndex);
-        }
+       String query = "insert into finished_list (user_ID, job_text, job_date)\n"
+               +"select user_ID, job_text, job_date from ongoing_list where job_text = \""+selectedJob+"\";";
+       String delquery = "delete from ongoing_list where job_text = \""+selectedJob+"\";";
+       buttonQueryExecution(query,delquery); 
     }//GEN-LAST:event_jButtonForvardToFinishedActionPerformed
 
+    private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+        dbDisconnect();
+    }//GEN-LAST:event_formWindowClosed
+
+    //Connecting to database, loading data into lists
+    private void dbConnect(){
+        
+        try {
+            // opening database connection to MySQL server
+            con = DriverManager.getConnection(url, user, password);
+
+            // getting Statement object to execute query
+            stmt = con.createStatement();
+            
+            dbFillLists();
+            
+        } catch (SQLException sqlEx) {
+            sqlEx.printStackTrace();
+        }
+    }
+
+    private void dbDisconnect(){
+            try { con.close(); } catch(SQLException se) { /*can't do anything */ }
+            try { stmt.close(); } catch(SQLException se) { /*can't do anything */ }
+            try { rs.close(); } catch(SQLException se) { /*can't do anything */ }
+    }
+    
+    //procedure for filling and refreshing listboxes
+    private void dbFillLists(){
+        //TODO user_id is still fixed, need much work to do with logging
+       listModelTodo.clear();
+       listModelOngoing.clear();
+       listModelFinished.clear();
+       
+       String query1 = "select job_text from todo_list\n"+"where user_id = '2';";
+       String query2 = "select job_text from ongoing_list\n"+"where user_id = '2';";
+       String query3 = "select job_text from finished_list\n"+"where user_id = '2';";
+            try{
+       // executing SELECT query
+            rs = stmt.executeQuery(query1);
+            //Loading data to lists
+            while (rs.next()) {
+                listModelTodo.add(listModelTodo.getSize(), rs.getString(1));
+            }
+
+            rs = stmt.executeQuery(query2);
+            while (rs.next()) {
+                listModelOngoing.add(listModelOngoing.getSize(), rs.getString(1));
+            }
+            
+            rs = stmt.executeQuery(query3);
+            while (rs.next()) {
+                listModelFinished.add(listModelFinished.getSize(), rs.getString(1));
+            }
+            }
+            catch(SQLException ex){
+                
+            }
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -356,5 +433,15 @@ public class MainWindow extends javax.swing.JFrame {
     final DefaultListModel listModelTodo = new DefaultListModel();
     final DefaultListModel listModelOngoing = new DefaultListModel();
     final DefaultListModel listModelFinished = new DefaultListModel();
+    
+        // JDBC URL, username and password of MySQL server
+    private static final String url = "jdbc:mysql://localhost:3306/listbase";
+    private static final String user = "root";
+    private static final String password = "02021995";
+
+        // JDBC variables for opening and managing connection
+    private static Connection con;
+    private static Statement stmt;
+    private static ResultSet rs;
     //End of user variables declaration
 }

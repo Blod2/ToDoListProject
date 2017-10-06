@@ -21,20 +21,21 @@ public class MainWindow extends javax.swing.JFrame {
 
     /**
      * Creates new form MainWindow
+     * @param _ID user id from login form
      */
-    public MainWindow() {
+    public MainWindow(int _ID) {
         initComponents();
-        
+        uid = _ID;
         //setting models for lists, models control the list contents
        jListTodo.setModel(listModelTodo);
        jListOngoing.setModel(listModelOngoing);
        jListFinished.setModel(listModelFinished);
        
-       /*TODO: procedure connecting to database
-       * procedure loading from database
-       * procedure saving to database(?)
-       * DO NOT FORGET DISCONNECT FROM DB
-       * add work with database to button actions
+       /*TODO:
+       * figure out how to import user ID from another frame 
+       * make login window
+       * add procedures for add job and delete job buttons
+       * make sorting by date or something else
        */
        
        dbConnect();
@@ -328,7 +329,7 @@ public class MainWindow extends javax.swing.JFrame {
             dbFillLists();
             
         } catch (SQLException sqlEx) {
-            sqlEx.printStackTrace();
+           JOptionPane.showMessageDialog(this, sqlEx.getMessage());
         }
     }
 
@@ -367,7 +368,7 @@ public class MainWindow extends javax.swing.JFrame {
             }
             }
             catch(SQLException ex){
-                
+                JOptionPane.showMessageDialog(this, ex.getMessage());
             }
     }
     
@@ -399,13 +400,14 @@ public class MainWindow extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
+        /*
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new MainWindow().setVisible(true);
             }
-        });
+        });*/
     }
-
+       
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -443,5 +445,7 @@ public class MainWindow extends javax.swing.JFrame {
     private static Connection con;
     private static Statement stmt;
     private static ResultSet rs;
+    
+    private int uid;
     //End of user variables declaration
 }

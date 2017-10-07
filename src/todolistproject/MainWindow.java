@@ -69,6 +69,13 @@ public class MainWindow extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setLocation(new java.awt.Point(400, 320));
+        addWindowFocusListener(new java.awt.event.WindowFocusListener() {
+            public void windowGainedFocus(java.awt.event.WindowEvent evt) {
+                formWindowGainedFocus(evt);
+            }
+            public void windowLostFocus(java.awt.event.WindowEvent evt) {
+            }
+        });
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosed(java.awt.event.WindowEvent evt) {
                 formWindowClosed(evt);
@@ -85,6 +92,11 @@ public class MainWindow extends javax.swing.JFrame {
         jScrollPane3.setViewportView(jListFinished);
 
         jButtonDeleteTask.setText("Delete task");
+        jButtonDeleteTask.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDeleteTaskActionPerformed(evt);
+            }
+        });
 
         jButtonBackToOngoing.setText("Back");
         jButtonBackToOngoing.addActionListener(new java.awt.event.ActionListener() {
@@ -125,6 +137,11 @@ public class MainWindow extends javax.swing.JFrame {
         jPanel3.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         jListTodo.setModel(jListOngoing.getModel());
+        jListTodo.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jListTodoMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(jListTodo);
 
         jButtonForvardToOngoing.setText("Forvard");
@@ -135,6 +152,11 @@ public class MainWindow extends javax.swing.JFrame {
         });
 
         jButtonAddTask.setText("Add task");
+        jButtonAddTask.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAddTaskActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -329,6 +351,29 @@ public class MainWindow extends javax.swing.JFrame {
         dbDisconnect();
     }//GEN-LAST:event_formWindowClosed
 
+    private void jButtonAddTaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAddTaskActionPerformed
+
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new AddTaskForm(con,stmt,uid).setVisible(true);
+            }
+        });
+    }//GEN-LAST:event_jButtonAddTaskActionPerformed
+
+    private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
+        dbFillLists();
+    }//GEN-LAST:event_formWindowGainedFocus
+
+    private void jButtonDeleteTaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteTaskActionPerformed
+        String selectedJob = jListOngoing.getSelectedValue();
+        String delquery = "delete from ongoing_list where job_text = \""+selectedJob+"\";";
+    }//GEN-LAST:event_jButtonDeleteTaskActionPerformed
+
+    private void jListTodoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListTodoMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jListTodoMouseClicked
+
     //Connecting to database, loading data into lists
     private void dbConnect(){
         
@@ -355,7 +400,6 @@ public class MainWindow extends javax.swing.JFrame {
     
     //procedure for filling and refreshing listboxes
     private void dbFillLists(){
-        //TODO user_id is still fixed, need much work to do with logging
        listModelTodo.clear();
        listModelOngoing.clear();
        listModelFinished.clear();

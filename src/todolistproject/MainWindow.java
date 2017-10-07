@@ -31,9 +31,7 @@ public class MainWindow extends javax.swing.JFrame {
        jListOngoing.setModel(listModelOngoing);
        jListFinished.setModel(listModelFinished);
        
-       /*TODO:
-       * figure out how to import user ID from another frame 
-       * make login window
+       /**TODO:
        * add procedures for add job and delete job buttons
        * make sorting by date or something else
        */
@@ -313,6 +311,7 @@ public class MainWindow extends javax.swing.JFrame {
        buttonQueryExecution(query,delquery); 
     }//GEN-LAST:event_jButtonForvardToFinishedActionPerformed
 
+    //making a disconnect on window closing
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
         dbDisconnect();
     }//GEN-LAST:event_formWindowClosed
@@ -333,7 +332,8 @@ public class MainWindow extends javax.swing.JFrame {
            JOptionPane.showMessageDialog(this, sqlEx.getMessage());
         }
     }
-
+    
+    //Disconnect from the database
     private void dbDisconnect(){
             try { con.close(); } catch(SQLException se) { /*can't do anything */ }
             try { stmt.close(); } catch(SQLException se) { /*can't do anything */ }

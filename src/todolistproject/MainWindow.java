@@ -70,6 +70,7 @@ public class MainWindow extends javax.swing.JFrame {
         jMenu2 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setLocation(new java.awt.Point(400, 320));
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosed(java.awt.event.WindowEvent evt) {
                 formWindowClosed(evt);
@@ -346,9 +347,9 @@ public class MainWindow extends javax.swing.JFrame {
        listModelOngoing.clear();
        listModelFinished.clear();
        
-       String query1 = "select job_text from todo_list\n"+"where user_id = '2';";
-       String query2 = "select job_text from ongoing_list\n"+"where user_id = '2';";
-       String query3 = "select job_text from finished_list\n"+"where user_id = '2';";
+       String query1 = "select job_text from todo_list\n"+"where user_id = "+uid+";";
+       String query2 = "select job_text from ongoing_list\n"+"where user_id = "+uid+";";
+       String query3 = "select job_text from finished_list\n"+"where user_id = "+uid+";";
             try{
        // executing SELECT query
             rs = stmt.executeQuery(query1);

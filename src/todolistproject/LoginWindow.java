@@ -11,7 +11,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import javax.swing.JOptionPane;
-import java.awt.event.WindowEvent;
 
 /**
  *
@@ -36,19 +35,26 @@ public class LoginWindow extends javax.swing.JFrame {
     private void initComponents() {
 
         jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jButtonAdd = new javax.swing.JButton();
         jButtonLogin = new javax.swing.JButton();
+        jTextField2 = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setLocation(new java.awt.Point(500, 400));
+        setResizable(false);
 
         jLabel1.setText("Username");
 
         jLabel2.setText("Password");
 
         jButtonAdd.setText("Add new user");
+        jButtonAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAddActionPerformed(evt);
+            }
+        });
 
         jButtonLogin.setText("Login");
         jButtonLogin.addActionListener(new java.awt.event.ActionListener() {
@@ -62,15 +68,19 @@ public class LoginWindow extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(48, 48, 48)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(jButtonAdd)
-                    .addComponent(jButtonLogin)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)
-                    .addComponent(jTextField1)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2))
-                .addContainerGap(50, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(33, 33, 33)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                            .addComponent(jButtonAdd)
+                            .addComponent(jButtonLogin)
+                            .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2))))
+                .addGap(33, 33, 33))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -81,21 +91,35 @@ public class LoginWindow extends javax.swing.JFrame {
                 .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel2)
-                .addGap(5, 5, 5)
+                .addGap(6, 6, 6)
                 .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jButtonLogin)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButtonAdd)
-                .addContainerGap(30, Short.MAX_VALUE))
+                .addContainerGap(31, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLoginActionPerformed
-        dbConnect(jTextField1.getText(),jTextField2.getText());
+        if (jTextField1.getText().isEmpty()||jTextField1.getText().isEmpty()){
+            JOptionPane.showMessageDialog(this, "Please, write login or/and password.");
+        }
+        else{
+            dbConnect(jTextField1.getText(),jTextField2.getText(),1);
+        }
     }//GEN-LAST:event_jButtonLoginActionPerformed
+
+    private void jButtonAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAddActionPerformed
+        if (jTextField1.getText().isEmpty()||jTextField1.getText().isEmpty()){
+            JOptionPane.showMessageDialog(this, "Please, write login or/and password.");
+        }
+        else{
+            dbConnect(jTextField1.getText(),jTextField2.getText(),2);
+        }
+    }//GEN-LAST:event_jButtonAddActionPerformed
 
     /**
      * @param args the command line arguments
@@ -132,57 +156,87 @@ public class LoginWindow extends javax.swing.JFrame {
         });
     }
     
-     private void dbConnect(String _username, String _pass){
-         
-         
-         
-        String query = "select password from users where username = \""+_username+"\"";
+    /**
+    * @param mode 1 - login mode, 2 - creation a new user 
+    */
+    
+     private void dbConnect(String _username, String _pass, int mode){
+        String queryAdd = "insert into users (username, password) values (\""+_username+"\", \""+_pass+"\")";
         try {
             // opening database connection to MySQL server
-            con = DriverManager.getConnection(url, user, password);
+            con = DriverManager.getConnection(connectionString, user, password);
 
             // getting Statement object to execute query
             stmt = con.createStatement();
-            
-            rs = stmt.executeQuery(query);
-            rs.next();
-            if (_pass.equalsIgnoreCase(rs.getString(1))){
-                String q2 = "select ID from users where username = \""+_username+"\"";
-                rs = stmt.executeQuery(q2);
-                rs.next();
-              /*   java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try{
-                new MainWindow(rs.getInt(1)).setVisible(true);    
-                }
-                catch(SQLException ex){
-                   
-                }
+            if (mode==1){
+            startMainWindow(_pass, _username);
             }
-                     
-        });*/
-                this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-            }
-            else {
-                JOptionPane.showMessageDialog(this, "Incorrect password.");
+            if (mode==2){
+                //checking row existence
+                String exQuery = "select ID from users where username =\""+_username+"\"";
+                rs=stmt.executeQuery(exQuery);
+                if(!rs.next()){
+                stmt.executeUpdate(queryAdd);
+                startMainWindow(_pass, _username);
+                }
+                else {
+                    JOptionPane.showMessageDialog(this, "User "+_username+" already exists. Use login button to login.");
+                }
             }
             
         } catch (SQLException sqlEx) {
             JOptionPane.showMessageDialog(this, sqlEx.getMessage());
         }
     }
-
+     
+     //check username and password and star main window
+     private void startMainWindow(String _pswd, String _uname) throws SQLException{
+         //mode 1
+        String queryLogin = "select password from users where username = \""+_uname+"\"";
+         rs = stmt.executeQuery(queryLogin);
+            rs.next();
+         if (_pswd.equalsIgnoreCase(rs.getString(1))){
+                String q2 = "select ID from users where username = \""+_uname+"\"";
+                rs = stmt.executeQuery(q2);
+                rs.next();
+                int rska = rs.getInt(1);
+                dbDisconnect();
+                /* 
+                * Po normalnomu ya dolzhen peredat ekzempliary poklychenia con i stmt v 
+                * konstruktor Main window chtob ne delat rekonnekt. No mne pohui.
+                */
+                  java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new MainWindow(rska).setVisible(true);     
+            }
+                     
+        });
+                this.setVisible(false);
+                
+            }
+            else {
+                JOptionPane.showMessageDialog(this, "Incorrect password.");
+            }
+        
+     }
+     
+     private void dbDisconnect(){
+            try { con.close(); } catch(SQLException se) { /*can't do anything */ }
+            try { stmt.close(); } catch(SQLException se) { /*can't do anything */ }
+            try { rs.close(); } catch(SQLException se) { /*can't do anything */ }
+    }
+     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonAdd;
     private javax.swing.JButton jButtonLogin;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
+    private javax.swing.JPasswordField jTextField2;
     // End of variables declaration//GEN-END:variables
 
     // JDBC URL, username and password of MySQL server
-    private static final String url = "jdbc:mysql://localhost:3306/listbase";
+    private static final String connectionString = "jdbc:mysql://localhost:3306/listbase";
     private static final String user = "root";
     private static final String password = "02021995";
 

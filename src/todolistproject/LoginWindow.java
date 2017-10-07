@@ -16,6 +16,11 @@ import javax.swing.JOptionPane;
  *
  * @author blod2
  */
+
+/**
+* TODO:
+* need to add check for database existance, and creation a blank database
+*/
 public class LoginWindow extends javax.swing.JFrame {
 
     /**

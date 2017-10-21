@@ -190,7 +190,12 @@ public class LoginWindow extends javax.swing.JFrame {
             }
             
         } catch (SQLException sqlEx) {
+            if (sqlEx.getErrorCode()==0){
+                JOptionPane.showMessageDialog(this, "Wrong username or pasword. Or your MySQL server went dead.");
+            }
+            else{
             JOptionPane.showMessageDialog(this, sqlEx.getMessage());
+            }
         }
     }
      

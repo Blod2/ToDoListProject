@@ -12,6 +12,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 /**
  *
@@ -31,6 +33,7 @@ public class MainWindow extends javax.swing.JFrame {
        jListOngoing.setModel(listModelOngoing);
        jListFinished.setModel(listModelFinished);
        
+       
        /**TODO:
        * add procedures for add job and delete job buttons
        * make sorting by date or something else
@@ -38,7 +41,26 @@ public class MainWindow extends javax.swing.JFrame {
        
        dbConnect();
     }
-
+    
+    //some sort of "dich", need to rework
+    class ListSelectionHandler implements ListSelectionListener {
+        
+        javax.swing.JList<String> listON_;
+        javax.swing.JList<String> listTD_;
+        javax.swing.JList<String> listFIN_;
+    
+        public ListSelectionHandler(javax.swing.JList<String> listTD, javax.swing.JList<String> listON,javax.swing.JList<String> listFIN) {
+            listON_ = listON;
+            listTD_ = listTD;
+           listFIN_ =  listFIN;
+        }
+        
+        @Override
+        public void valueChanged(ListSelectionEvent e) {
+           
+        }
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -88,6 +110,11 @@ public class MainWindow extends javax.swing.JFrame {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
+        });
+        jListFinished.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jListFinishedMouseClicked(evt);
+            }
         });
         jScrollPane3.setViewportView(jListFinished);
 
@@ -191,6 +218,11 @@ public class MainWindow extends javax.swing.JFrame {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
+        });
+        jListOngoing.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jListOngoingMouseClicked(evt);
+            }
         });
         jScrollPane2.setViewportView(jListOngoing);
 
@@ -364,15 +396,38 @@ public class MainWindow extends javax.swing.JFrame {
     private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
         dbFillLists();
     }//GEN-LAST:event_formWindowGainedFocus
-
+    //TODO finish work on deleting procedure
     private void jButtonDeleteTaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteTaskActionPerformed
         String selectedJob = jListOngoing.getSelectedValue();
         String delquery = "delete from ongoing_list where job_text = \""+selectedJob+"\";";
     }//GEN-LAST:event_jButtonDeleteTaskActionPerformed
-
+    
+    /*
+    * In theory onMouseClicked procedures must deselect elements of other lists
+    * preventing multi-list selection, which would be usefull on deleting 
+    * selected values, but on practice it doesn't work ideally.
+    * Sometimes it works, sometimes not.
+    */
     private void jListTodoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListTodoMouseClicked
-        // TODO add your handling code here:
+        if (!jListTodo.isSelectionEmpty()){
+            jListOngoing.clearSelection();
+            jListFinished.clearSelection();
+        }
     }//GEN-LAST:event_jListTodoMouseClicked
+
+    private void jListOngoingMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListOngoingMouseClicked
+         if (!jListOngoing.isSelectionEmpty()){
+            jListTodo.clearSelection();
+            jListFinished.clearSelection();
+        }
+    }//GEN-LAST:event_jListOngoingMouseClicked
+
+    private void jListFinishedMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListFinishedMouseClicked
+         if (!jListFinished.isSelectionEmpty()){
+            jListOngoing.clearSelection();
+            jListTodo.clearSelection();
+        }
+    }//GEN-LAST:event_jListFinishedMouseClicked
 
     //Connecting to database, loading data into lists
     private void dbConnect(){
